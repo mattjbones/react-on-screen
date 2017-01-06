@@ -81,16 +81,24 @@ export default class TrackVisibility extends Component {
     const html = document.documentElement;
     const offset = this.props.offset;
 
-    if (
-      rect.top >= 0 &&
-      rect.left >= 0 &&
+    const isFullyVisible = rect.top >= 0 && rect.left >= 0 &&
       rect.bottom <= (window.innerHeight + offset || html.clientHeight + offset) &&
-      rect.right <= (window.innerWidth + offset || html.clientWidth + offset)
-    ) {
+      rect.right <= (window.innerWidth + offset || html.clientWidth + offset);
+
+    const isPartiallyVisibleBottom = rect.bottom > offset;
+    const isPartiallyVisibleTop = rect.top > (window.innerHeight + offset || html.clientHeight+ offset);
+    const isPartiallyVisibleRight = rect.right > offset;
+    const isPartiallyVisibleLeft = rect.left < (window.innerWidth + offset || html.clientWidth + offset);
+    const isPartiallyVisible = isPartiallyVisibleBottom || isPartiallyVisibleLeft ||
+      isPartiallyVisibleRight || isPartiallyVisibleTop;
+
+    if (isFullyVisible) {
       this.props.once && this.removeListener();
       !this.state.isVisible && this.setState({ isVisible: true });
+    } else if (isPartiallyVisible) {
+      !this.state.isPartiallyVisible && this.setState({ isPartiallyVisible: true });
     } else {
-      this.state.isVisible && this.setState({ isVisible: false });
+      this.state.isVisible && this.setState({ isVisible: false, isPartiallyVisible: false });
     }
   }
 
