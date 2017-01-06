@@ -186,7 +186,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var _this3 = this;
 
 	      return _react2.default.Children.map(this.props.children, function (child) {
-	        return _react2.default.cloneElement(child, _extends({}, _this3.getChildProps(), { isVisible: _this3.state.isVisible }));
+	        return _react2.default.cloneElement(child, _extends({}, _this3.getChildProps(), {
+	          isVisible: _this3.state.isVisible,
+	          isPartiallyVisible: _this3.state.isPartiallyVisible
+	        }));
 	      });
 	    }
 	  }, {
@@ -196,13 +199,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var html = document.documentElement;
 	      var offset = this.props.offset;
 
-	      var isFullyVisible = rect.top >= 0 && rect.left >= 0 && rect.bottom <= (window.innerHeight + offset || html.clientHeight + offset) && rect.right <= (window.innerWidth + offset || html.clientWidth + offset);
+	      var height = (window.innerHeight || html.clientHeight) + offset;
+	      var width = (window.innerWidth || html.clientWidth) + offset;
 
-	      var isPartiallyVisibleBottom = rect.bottom > offset;
-	      var isPartiallyVisibleTop = rect.top > (window.innerHeight + offset || html.clientHeight + offset);
-	      var isPartiallyVisibleRight = rect.right > offset;
-	      var isPartiallyVisibleLeft = rect.left < (window.innerWidth + offset || html.clientWidth + offset);
-	      var isPartiallyVisible = isPartiallyVisibleBottom || isPartiallyVisibleLeft || isPartiallyVisibleRight || isPartiallyVisibleTop;
+	      var isFullyVisible = rect.top >= 0 && rect.left >= 0 && rect.bottom <= height && rect.right <= width;
+	      var isBottomPartiallyVisible = rect.bottom > offset && rect.top < offset && (rect.right >= 0 || rect.left <= width);
+	      var isTopPartiallyVisible = rect.top < height && rect.bottom > height && (rect.right > 0 || rect.left <= width);
+	      var isRightPartiallyVisible = rect.right > 0 && rect.left < 0 && (rect.top > 0 || rect.bottom < height);
+	      var isLeftPartiallyVisible = rect.left < width && rect.right > width && (rect.top > 0 || rect.bottom < height);
+
+	      var isPartiallyVisible = isBottomPartiallyVisible || isLeftPartiallyVisible || isRightPartiallyVisible || isTopPartiallyVisible;
 
 	      if (isFullyVisible) {
 	        this.props.once && this.removeListener();
