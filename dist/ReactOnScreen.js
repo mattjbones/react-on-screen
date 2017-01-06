@@ -196,11 +196,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var html = document.documentElement;
 	      var offset = this.props.offset;
 
-	      if (rect.top >= 0 && rect.left >= 0 && rect.bottom <= (window.innerHeight + offset || html.clientHeight + offset) && rect.right <= (window.innerWidth + offset || html.clientWidth + offset)) {
+	      var isFullyVisible = rect.top >= 0 && rect.left >= 0 && rect.bottom <= (window.innerHeight + offset || html.clientHeight + offset) && rect.right <= (window.innerWidth + offset || html.clientWidth + offset);
+
+	      var isPartiallyVisibleBottom = rect.bottom > offset;
+	      var isPartiallyVisibleTop = rect.top > (window.innerHeight + offset || html.clientHeight + offset);
+	      var isPartiallyVisibleRight = rect.right > offset;
+	      var isPartiallyVisibleLeft = rect.left < (window.innerWidth + offset || html.clientWidth + offset);
+	      var isPartiallyVisible = isPartiallyVisibleBottom || isPartiallyVisibleLeft || isPartiallyVisibleRight || isPartiallyVisibleTop;
+
+	      if (isFullyVisible) {
 	        this.props.once && this.removeListener();
 	        !this.state.isVisible && this.setState({ isVisible: true });
+	      } else if (isPartiallyVisible) {
+	        !this.state.isPartiallyVisible && this.setState({ isPartiallyVisible: true });
 	      } else {
-	        this.state.isVisible && this.setState({ isVisible: false });
+	        this.state.isVisible && this.setState({ isVisible: false, isPartiallyVisible: false });
 	      }
 	    }
 	  }, {
