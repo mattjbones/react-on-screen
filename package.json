@@ -15,7 +15,7 @@
   "scripts": {
     "lint": "eslint src/",
     "pretest": "npm run lint",
-    "test": "mocha --compilers js:babel-core/register --require jsdomSetup.js --recursive test/",
+    "test": "mocha --compilers js:babel-core/register --require jsdomSetup.js --watch --recursive test/",
     "prebuild": "npm run test",
     "build": "./scripts/build.sh"
   },
@@ -41,7 +41,7 @@
     "eslint-plugin-import": "^1.13.0",
     "eslint-plugin-jsx-a11y": "^2.1.0",
     "eslint-plugin-react": "^6.0.0",
-    "jsdom": "^9.4.2",
+    "jsdom": "^9.9.1",
     "karma": "^1.2.0",
     "mocha": "^3.0.2",
     "react-addons-test-utils": "^15.3.0",

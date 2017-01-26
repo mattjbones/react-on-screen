@@ -1,18 +1,35 @@
-import React from 'react';
+import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import { shallow, mount } from 'enzyme';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import TrackVisibility from './../src/TrackVisibility';
 
+var defaultProps = {};
 
 const hasProp = (Component, prop) => {
  return {}.hasOwnProperty.call(Component, prop);
 };
 
+function render(newProps, callback) {
+    var props = {...defaultProps, ...newProps};
+    return React.renderComponent(Component(props), document.body, function() {
+        if (typeof callback === 'function') setTimeout(callback)
+    })
+}
 describe('<TrackVisibility />', () => {
 
   describe('When rendering the component', ()=> {
+
+    let oldGBCR;
+    beforeEach(()=>{
+      oldGBCR = window.HTMLDivElement.prototype.getBoundingClientRect;
+    });
+
+    afterEach(()=>{
+       window.HTMLDivElement.prototype.getBoundingClientRect = oldGBCR;
+    })
+
     it('Can be rendered without children', () => {
       const wrapper = shallow(<TrackVisibility />);
       expect(wrapper.equals(<div></div>)).to.equal(true);
@@ -57,7 +74,7 @@ describe('<TrackVisibility />', () => {
 
     it('Should transfer all the props provided to children but omit own props [once, throttleInterval, className, style]', () => {
       const wrapper = shallow(
-        <TrackVisibility foo="bar" baz="foobar">
+        <TrackVisibility foo="bar" baz="foobar" once={true}>
           <div />
         </TrackVisibility>
       );
@@ -65,12 +82,132 @@ describe('<TrackVisibility />', () => {
       expect(hasProp(props, 'foo')).to.equal(true);
       expect(hasProp(props, 'baz')).to.equal(true);
       expect(hasProp(props, 'isVisible')).to.equal(true);
+      expect(props.once).to.not.exist;
+    });
+
+
+    it('Should pass isVisible false as child is off screen',  () => {
+      window.HTMLDivElement.prototype.getBoundingClientRect = () => ({
+        top: -1,
+        bottom: -2,
+        right: -2,
+        left: -1
+      });
+
+      const wrapper = mount(
+        <TrackVisibility foo="bar" baz="foobar">
+          <div />
+        </TrackVisibility>
+      );
+      const props = wrapper.children().props();
+      expect(props.isVisible).to.equal(false);
+      expect(props.isPartiallyVisible).to.equal(false);
+    });
+
+    it('Should only pass isPartiallyVisible true as child is partially visible bottom/left',  () => {
+
+      const height = (window.innerHeight || html.clientHeight);
+      const width = (window.innerWidth || html.clientWidth);
+      window.HTMLDivElement.prototype.getBoundingClientRect = () => ({
+        top: height-1,
+        bottom: height+1,
+        right: +1,
+        left: -1
+      });
+
+      const wrapper = mount(
+        <TrackVisibility foo="bar" baz="foobar">
+          <div />
+        </TrackVisibility>
+      );
+      const props = wrapper.children().props();
+      expect(props.isVisible).to.equal(false);
+      expect(props.isPartiallyVisible).to.equal(true);
+    });
+
+    it('Should only pass isPartiallyVisible true as child is partially visible bottom/right',  () => {
+
+      const height = (window.innerHeight || html.clientHeight);
+      const width = (window.innerWidth || html.clientWidth);
+      window.HTMLDivElement.prototype.getBoundingClientRect = () => ({
+        top: height-1,
+        bottom: height+1,
+        right: width+1,
+        left: width-1
+      });
+
+      const wrapper = mount(
+        <TrackVisibility foo="bar" baz="foobar">
+          <div />
+        </TrackVisibility>
+      );
+      const props = wrapper.children().props();
+      expect(props.isVisible).to.equal(false);
+      expect(props.isPartiallyVisible).to.equal(true);
+    });
+
+    it('Should only pass isPartiallyVisible true as child is partially visible top/right',  () => {
+
+      const height = (window.innerHeight || html.clientHeight);
+      const width = (window.innerWidth || html.clientWidth);
+      window.HTMLDivElement.prototype.getBoundingClientRect = () => ({
+        top: -1,
+        bottom: 1,
+        right: width+1,
+        left: width-1
+      });
+
+      const wrapper = mount(
+        <TrackVisibility foo="bar" baz="foobar">
+          <div />
+        </TrackVisibility>
+      );
+      const props = wrapper.children().props();
+      expect(props.isVisible).to.equal(false);
+      expect(props.isPartiallyVisible).to.equal(true);
+    });
+
+    it('Should only pass isPartiallyVisible true as child is partially visible top/left',  () => {
+      window.HTMLDivElement.prototype.getBoundingClientRect = () => ({
+        top: -1,
+        bottom: 1,
+        right: 1,
+        left: -1
+      });
+
+      const wrapper = mount(
+        <TrackVisibility foo="bar" baz="foobar">
+          <div />
+        </TrackVisibility>
+      );
+      const props = wrapper.children().props();
+      expect(props.isVisible).to.equal(false);
+      expect(props.isPartiallyVisible).to.equal(true);
+    });
+
+    it('Should pass isPartiallyVisible and isVisible as child is fully visible',  () => {
+      window.HTMLDivElement.prototype.getBoundingClientRect = () => ({
+        top: 1,
+        bottom: 2,
+        right: 2,
+        left: 1
+      });
+
+      const wrapper = mount(
+        <TrackVisibility foo="bar" baz="foobar">
+          <div />
+        </TrackVisibility>
+      );
+      const props = wrapper.children().props();
+      expect(props.isVisible).to.equal(true);
+      expect(props.isPartiallyVisible).to.equal(false);
     });
 
     it('Store the result of the ref callback into this.nodeRef', () => {
       const wrapper = mount(<TrackVisibility />);
       expect(wrapper.instance().nodeRef).to.be.object;
     });
+
 
     it('Can update state', () => {
       const wrapper = mount(<TrackVisibility />);

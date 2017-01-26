@@ -82,27 +82,33 @@ export default class TrackVisibility extends Component {
 
   isComponentVisible() {
     const rect = this.nodeRef.getBoundingClientRect();
+
     const html = document.documentElement;
     const offset = this.props.offset;
 
     const height = (window.innerHeight || html.clientHeight) + offset;
     const width = (window.innerWidth || html.clientWidth) + offset;
 
-    const isFullyVisible = rect.top >= 0 && rect.left >= 0 && rect.bottom <= height && rect.right <= width;
+
+    const isFullyVisible = rect.top > 0 && rect.left > 0 && rect.bottom < height && rect.right < width;
     const isBottomPartiallyVisible = rect.bottom > offset && rect.top < offset && (rect.right >= 0 || rect.left <= width);
     const isTopPartiallyVisible = rect.top < height && rect.bottom > height && (rect.right >0 || rect.left <= width);
     const isRightPartiallyVisible = rect.right > 0 && rect.left < 0 && (rect.top > 0 || rect.bottom < height);
     const isLeftPartiallyVisible = rect.left < width && rect.right > width &&(rect.top > 0 || rect.bottom < height);
 
-    const isPartiallyVisible = isBottomPartiallyVisible || isLeftPartiallyVisible || isRightPartiallyVisible || isTopPartiallyVisible;
+
+    const isPartiallyVisible = isBottomPartiallyVisible || isLeftPartiallyVisible ||
+                                  isRightPartiallyVisible || isTopPartiallyVisible;
 
     if (isFullyVisible) {
       this.props.once && this.removeListener();
-      !this.state.isVisible && this.setState({ isVisible: true });
+      !this.state.isVisible && this.setState({ isVisible: true, isPartiallyVisible: false });
     } else if (isPartiallyVisible) {
-      !this.state.isPartiallyVisible && this.setState({ isPartiallyVisible: true });
+      this.props.once && this.removeListener();
+      !this.state.isPartiallyVisible && this.setState({ isPartiallyVisible: true, isVisible: false });
     } else {
-      (this.state.isVisible || this.state.isPartiallyVisible) && this.setState({ isVisible: false, isPartiallyVisible: false });
+      (!this.state.isVisible || !this.state.isPartiallyVisible) &&
+        this.setState({ isVisible: false, isPartiallyVisible: false });
     }
   }
 
