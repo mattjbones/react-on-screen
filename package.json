@@ -15,7 +15,8 @@
   "scripts": {
     "lint": "eslint src/",
     "pretest": "npm run lint",
-    "test": "mocha --compilers js:babel-core/register --require jsdomSetup.js --watch --recursive test/",
+    "test": "mocha --compilers js:babel-core/register --require jsdomSetup.js --recursive test/",
+    "watch": "mocha --compilers js:babel-core/register --require jsdomSetup.js --watch --recursive test/",
     "prebuild": "npm run test",
     "build": "./scripts/build.sh"
   },
