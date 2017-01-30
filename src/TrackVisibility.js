@@ -90,7 +90,7 @@ export default class TrackVisibility extends Component {
     const width = (window.innerWidth || html.clientWidth) + offset;
 
 
-    const isFullyVisible = rect.top > 0 && rect.left > 0 && rect.bottom < height && rect.right < width;
+    const isFullyVisible = rect.top >= 0 && rect.left >= 0 && rect.bottom <= height && rect.right <= width;
     const isBottomPartiallyVisible = rect.bottom > offset && rect.top < offset && (rect.right >= 0 || rect.left <= width);
     const isTopPartiallyVisible = rect.top < height && rect.bottom > height && (rect.right >0 || rect.left <= width);
     const isRightPartiallyVisible = rect.right > 0 && rect.left < 0 && (rect.top > 0 || rect.bottom < height);
