@@ -196,6 +196,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    key: 'isComponentVisible',
 	    value: function isComponentVisible() {
 	      var rect = this.nodeRef.getBoundingClientRect();
+
 	      var html = document.documentElement;
 	      var offset = this.props.offset;
 
@@ -210,13 +211,14 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	      var isPartiallyVisible = isBottomPartiallyVisible || isLeftPartiallyVisible || isRightPartiallyVisible || isTopPartiallyVisible;
 
-	      if (isFullyVisible) {
+	      if (isFullyVisible && !this.state.isVisible) {
 	        this.props.once && this.removeListener();
-	        !this.state.isVisible && this.setState({ isVisible: true });
-	      } else if (isPartiallyVisible) {
-	        !this.state.isPartiallyVisible && this.setState({ isPartiallyVisible: true });
+	        this.setState({ isPartiallyVisible: false, isVisible: true });
+	      } else if (isPartiallyVisible && !this.state.isPartiallyVisible) {
+	        this.props.once && this.removeListener();
+	        this.setState({ isPartiallyVisible: true, isVisible: false });
 	      } else {
-	        this.state.isVisible && this.setState({ isVisible: false, isPartiallyVisible: false });
+	        (!this.state.isVisible || !this.state.isPartiallyVisible) && this.setState({ isVisible: false, isPartiallyVisible: false });
 	      }
 	    }
 	  }, {

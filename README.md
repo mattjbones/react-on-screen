@@ -5,14 +5,16 @@ You can use this component to trigger an entrance animation for instance !
 
 ## How it works ?
 
-The component simply passes a ```isVisible``` props to your component.
+The component simply passes an ```isVisible``` prop to your component when it's completely visible in the viewport. If only part of your component is visible then ```isPartiallyVisible``` will be passed instead.
+
+> ```isPartiallyVisible``` and ```isVisible``` are mutually exclusive, with the reasoning that if a component is fully visible then it can't also be partially visible (the inverse is also true).  
 
 ## Features
 
 - Don't rely on [findDOMNode](https://facebook.github.io/react/docs/top-level-api.html#reactdom.finddomnode). So it can be used with a stateless component.
 - Transfer all the props to the wrapped component
 - Visibility can be tracked only once
-- Event listeners are implemented with throttle to avoid  memory leaks or performance issues
+- Event listeners are implemented with throttle to avoid memory leaks or performance issues
 
 ## Demo
 
@@ -72,7 +74,8 @@ const YourApp = () => {
 
 ## TODO
 
-- [ ] Check for partial visibility
+- [x] Check for partial visibility
+- [ ] Handle top / left / right / bottom offsets
 
 ## Contributions
 

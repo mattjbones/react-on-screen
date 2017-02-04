@@ -89,23 +89,23 @@ export default class TrackVisibility extends Component {
     const height = (window.innerHeight || html.clientHeight) + offset;
     const width = (window.innerWidth || html.clientWidth) + offset;
 
-
     const isFullyVisible = rect.top >= 0 && rect.left >= 0 && rect.bottom <= height && rect.right <= width;
-    const isBottomPartiallyVisible = rect.bottom > offset && rect.top < offset && (rect.right >= 0 || rect.left <= width);
-    const isTopPartiallyVisible = rect.top < height && rect.bottom > height && (rect.right >0 || rect.left <= width);
-    const isRightPartiallyVisible = rect.right > 0 && rect.left < 0 && (rect.top > 0 || rect.bottom < height);
-    const isLeftPartiallyVisible = rect.left < width && rect.right > width &&(rect.top > 0 || rect.bottom < height);
 
+    const isTopPartiallyVisible = rect.top < height && rect.bottom > height && (rect.right >0 || rect.left <= width);
+    const isLeftPartiallyVisible = rect.left < width && rect.right > width &&(rect.top > 0 || rect.bottom < height);
+    const isRightPartiallyVisible = rect.right > 0 && rect.left < 0 && (rect.top > 0 || rect.bottom < height);
+    const isBottomPartiallyVisible = rect.bottom > offset && rect.top < offset &&
+                                        (rect.right >= 0 || rect.left <= width);
 
     const isPartiallyVisible = isBottomPartiallyVisible || isLeftPartiallyVisible ||
                                   isRightPartiallyVisible || isTopPartiallyVisible;
 
-    if (isFullyVisible) {
+    if (isFullyVisible && !this.state.isVisible) {
       this.props.once && this.removeListener();
-      !this.state.isVisible && this.setState({ isVisible: true, isPartiallyVisible: false });
-    } else if (isPartiallyVisible) {
+      this.setState({ isPartiallyVisible: false, isVisible: true });
+    } else if (isPartiallyVisible && !this.state.isPartiallyVisible) {
       this.props.once && this.removeListener();
-      !this.state.isPartiallyVisible && this.setState({ isPartiallyVisible: true, isVisible: false });
+      this.setState({ isPartiallyVisible: true, isVisible: false });
     } else {
       (!this.state.isVisible || !this.state.isPartiallyVisible) &&
         this.setState({ isVisible: false, isPartiallyVisible: false });

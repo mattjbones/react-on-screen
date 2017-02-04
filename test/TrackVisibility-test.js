@@ -5,18 +5,10 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import TrackVisibility from './../src/TrackVisibility';
 
-var defaultProps = {};
-
 const hasProp = (Component, prop) => {
  return {}.hasOwnProperty.call(Component, prop);
 };
 
-function render(newProps, callback) {
-    var props = {...defaultProps, ...newProps};
-    return React.renderComponent(Component(props), document.body, function() {
-        if (typeof callback === 'function') setTimeout(callback)
-    })
-}
 describe('<TrackVisibility />', () => {
 
   describe('When rendering the component', ()=> {
@@ -85,8 +77,8 @@ describe('<TrackVisibility />', () => {
       expect(props.once).to.not.exist;
     });
 
-
     it('Should pass isVisible false as child is off screen',  () => {
+
       window.HTMLDivElement.prototype.getBoundingClientRect = () => ({
         top: -1,
         bottom: -2,
@@ -108,6 +100,7 @@ describe('<TrackVisibility />', () => {
 
       const height = (window.innerHeight || html.clientHeight);
       const width = (window.innerWidth || html.clientWidth);
+      // 2x2 square drawn at height-1,-1
       window.HTMLDivElement.prototype.getBoundingClientRect = () => ({
         top: height-1,
         bottom: height+1,
@@ -129,6 +122,7 @@ describe('<TrackVisibility />', () => {
 
       const height = (window.innerHeight || html.clientHeight);
       const width = (window.innerWidth || html.clientWidth);
+      // 2x2 square drawn at height-1,width-1
       window.HTMLDivElement.prototype.getBoundingClientRect = () => ({
         top: height-1,
         bottom: height+1,
@@ -150,6 +144,7 @@ describe('<TrackVisibility />', () => {
 
       const height = (window.innerHeight || html.clientHeight);
       const width = (window.innerWidth || html.clientWidth);
+      // 2x2 square drawn at -1,width-1
       window.HTMLDivElement.prototype.getBoundingClientRect = () => ({
         top: -1,
         bottom: 1,
@@ -168,6 +163,7 @@ describe('<TrackVisibility />', () => {
     });
 
     it('Should only pass isPartiallyVisible true as child is partially visible top/left',  () => {
+      // 2x2 square drawn at -1,-1
       window.HTMLDivElement.prototype.getBoundingClientRect = () => ({
         top: -1,
         bottom: 1,
@@ -186,6 +182,7 @@ describe('<TrackVisibility />', () => {
     });
 
     it('Should pass isVisible true (and partially visible false) as child is fully visible',  () => {
+      // 1x1 square drawn at 1,1
       window.HTMLDivElement.prototype.getBoundingClientRect = () => ({
         top: 1,
         bottom: 2,
@@ -229,7 +226,6 @@ describe('<TrackVisibility />', () => {
       expect(wrapper.instance().nodeRef).to.be.object;
     });
 
-
     it('Can update state', () => {
       const wrapper = mount(<TrackVisibility />);
       wrapper.setState({isVisible: true});
@@ -238,11 +234,13 @@ describe('<TrackVisibility />', () => {
       expect(wrapper.state('isVisible')).to.equal(false);
 
     });
+
     it('Shouldn\'t have offset prop by default', () => {
       const wrapper = shallow(<TrackVisibility />);
       const props = wrapper.props();
       expect(hasProp(props, 'offset')).to.equal(false);
     });
+
     it('Should have offset prop if set', () => {
       const wrapper = shallow(<TrackVisibility offset={500} />);
       const props = wrapper.props();
